@@ -1,0 +1,19 @@
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+## python ##
+*.log
+*.pyc
+/venv
+
+### IDE ###
+/.vscode
+
+### Environment ###
+.env
+
+### Windows ###
+Thumbs.db
+ehthumbs.db
