@@ -10,6 +10,10 @@ conda activate
 conda deactivate
 ```
 
+```
+conda activate my_keras_demo
+```
+
 Create an environment:
 ```
 conda create --name myenv
