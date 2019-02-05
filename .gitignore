@@ -17,3 +17,7 @@
 ### Windows ###
 Thumbs.db
 ehthumbs.db
+
+### Jupyter ###
+.ipynb_checkpoints/
+
