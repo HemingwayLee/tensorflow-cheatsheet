@@ -22,4 +22,8 @@ conda create -n myenv scipy
 conda create -n myenv scipy=0.15.0
 ```
 
+Check environment:
+```
+conda env list
+```
 
