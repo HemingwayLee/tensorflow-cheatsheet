@@ -5,8 +5,7 @@ https://blog.csdn.net/u011606714/article/details/77741324
 # Comparison  
 * RNN is for time time series data
 * RNN has gradient vanish problem
-* LSTM/GRU internal gate design can fix gradient vanish problem (not entirely)
-* Attention is the solution for that
+* LSTM/GRU internal gate design is one way to fix gradient vanishing (gradient exploding) problem (not entirely)
 
 ## Gradient vanishing (gradient exploding) problem
 It is a difficulty found in training artificial neural networks with gradient-based learning methods and backpropagation.  
@@ -25,6 +24,7 @@ It is a difficulty found in training artificial neural networks with gradient-ba
 ### Solution for gradient vanishing problem
 * LSTM/GRU gate design
 * Shortcut
+* Attention (we can think attention as kind of shortcut)
 * Use ReLu, or LeakRelu
 
 ### Solution for gradient exploding
