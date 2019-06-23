@@ -34,6 +34,22 @@ g = d/dx
 if abs(g) >= threshold:
     g = threshold/abs(g) * g
 ```
+* Keras build-in clipping function  
+```python
+from keras import optimizers
+
+# All parameter gradients will be clipped to a maximum norm of 1.
+sgd = optimizers.SGD(lr=0.01, clipnorm=1.)
+```
+
+```python
+from keras import optimizers
+
+# All parameter gradients will be clipped to
+# a maximum value of 0.5 and a minimum value of -0.5.
+sgd = optimizers.SGD(lr=0.01, clipvalue=0.5)
+```
+
 * Weithts regularization
 
 https://blog.csdn.net/cppjava_/article/details/68941436  
