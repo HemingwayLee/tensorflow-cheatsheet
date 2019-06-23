@@ -55,3 +55,4 @@ sgd = optimizers.SGD(lr=0.01, clipvalue=0.5)
 https://blog.csdn.net/cppjava_/article/details/68941436  
 https://blog.csdn.net/qq_25737169/article/details/78847691  
 https://machinelearningmastery.com/how-to-fix-vanishing-gradients-using-the-rectified-linear-activation-function/  
+https://www.dlology.com/blog/how-to-deal-with-vanishingexploding-gradients-in-keras/  
