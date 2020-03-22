@@ -10,6 +10,16 @@
 variables: They are used to store the state of a graph. They must be initialized before using.  
 placeholders: They are used to feed external data into a graph.
 
+## Install
+
+```
+python3 -m virtualenv venv
+source venv/bin/activate
+pip3 install -r requirements.txt 
+ipython kernel install --user --name=venv
+jupyter notebook
+```
+
 ## Install conda
 ```
 conda install python=3.6
