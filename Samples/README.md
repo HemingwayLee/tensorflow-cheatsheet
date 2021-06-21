@@ -20,6 +20,19 @@ print("sess.run(a*b): ", sess.run(product))
 [variables](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/Samples/Variable.ipynb): They are used to store the state of a graph. They must be initialized before using.  
 [placeholders](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/Samples/Placeholder.ipynb): They are used to feed external data into a graph.
 
+```python
+W = tf.Variable([[.1, .2, .3], [.2, .4, .6]], dtype=tf.float32)
+b = tf.Variable([[.2], [.3]], dtype=tf.float32)
+x = tf.placeholder(tf.float32)
+
+linear_model = W*x + b
+
+init = tf.global_variables_initializer()
+sess = tf.Session()
+sess.run(init)
+print(sess.run(linear_model, {x: [1., 2., 3.]}))
+```
+
 ## What is Computational Graph?
 A computational graph is a directed graph where the nodes correspond to operations or variables. Variables can feed their value into operations, and operations can feed their output into other operations. This way, every node in the graph defines a function of the variables.  
 
