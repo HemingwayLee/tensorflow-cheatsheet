@@ -7,6 +7,15 @@
 * It can be converted into numpy array (v1 and v2 use different functions to convert)
 * We can do basic math on tensors (e.g., [example](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/Samples/Hello.ipynb)), including addition, element-wise multiplication, and matrix multiplication
 
+```python
+import tensorflow as tf
+a = tf.constant([[3., 3.]])
+b = tf.constant([[2.],[2.]]) 
+product = tf.matmul(a, b)
+sess = tf.Session()
+print("sess.run(a*b): ", sess.run(product))
+```
+
 ## What is the difference between `tf.Placeholder` and `tf.Variable`
 [variables](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/Samples/Variable.ipynb): They are used to store the state of a graph. They must be initialized before using.  
 [placeholders](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/Samples/Placeholder.ipynb): They are used to feed external data into a graph.
