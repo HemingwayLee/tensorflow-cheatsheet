@@ -16,5 +16,8 @@ A computational graph is a directed graph where the nodes correspond to operatio
 
 ![computational_graph](https://user-images.githubusercontent.com/8428372/72130257-4bfd9680-33bc-11ea-975b-a39dc219a58d.png)
 
+## `tf.contrib` is not able to run in TF2
+The `tf.contrib` has made it easy for members of the community to contribute to TensorFlow. However, as the community has grown, the lack of scalability of the current approach for maintaining and supporting `tf.contrib` is not able to run in TF2.
+
 ## Ref  
 https://www.tensorflow.org/guide/tensor?hl=en  
