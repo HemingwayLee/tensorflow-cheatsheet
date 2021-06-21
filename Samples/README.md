@@ -3,8 +3,10 @@
 
 ## What are Tensors
 * Tensors are higher dimensional arrays with a uniform type (called a `dtype`)
-* It stands apart from numpy array as it offers other methods
-* It can be converted into numpy array (v1 and v2 use different functions to convert)
+* Differences with numpy array
+  * It stands apart from numpy array as it offers other methods
+  * It can be converted into numpy array (v1 and v2 use different functions to convert)
+  * using [numpy array](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/docker/notebooks/numpyWithTF.ipynb) with TF
 * We can do basic math on tensors (e.g., [example](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/Samples/Hello.ipynb)), including [addition](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/Samples/Hello.ipynb), element-wise multiplication, and [matrix multiplication](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/Samples/MatrixOperations.ipynb)
 
 ```python
