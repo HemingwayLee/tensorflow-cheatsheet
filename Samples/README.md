@@ -23,6 +23,8 @@ print("sess.run(a*b): ", sess.run(product))
 ## What is Computational Graph?
 A computational graph is a directed graph where the nodes correspond to operations or variables. Variables can feed their value into operations, and operations can feed their output into other operations. This way, every node in the graph defines a function of the variables.  
 
+* [graph and session](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/docker/notebooks/Hello.ipynb)
+
 ![computational_graph](https://user-images.githubusercontent.com/8428372/72130257-4bfd9680-33bc-11ea-975b-a39dc219a58d.png)
 
 ## `tf.contrib` is not able to run in TF2
