@@ -5,7 +5,7 @@
 * Tensors are higher dimensional arrays with a uniform type (called a `dtype`)
 * It stands apart from numpy array as it offers other methods
 * It can be converted into numpy array (v1 and v2 use different functions to convert)
-* We can do basic math on tensors, including addition, element-wise multiplication, and matrix multiplication
+* We can do basic math on tensors (e.g., [example](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/Samples/Hello.ipynb)), including addition, element-wise multiplication, and matrix multiplication
 
 ## What is the difference between `tf.Placeholder` and `tf.Variable`
 [variables](https://github.com/HemingwayLee/tensorflow-cheatsheet/blob/master/Samples/Variable.ipynb): They are used to store the state of a graph. They must be initialized before using.  
