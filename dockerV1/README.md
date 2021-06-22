@@ -13,7 +13,7 @@ docker run -p 8888:8888 mytf
 
 * run with mounted volume
 ```
-docker run -it --rm -p 8888:8888 -v $(pwd):/home/proj/ mytf
+docker run -it --rm -p 8899:8888 -v $(pwd):/home/proj/ mytf
 ```
 
 # Ref
