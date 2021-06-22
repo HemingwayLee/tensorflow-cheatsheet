@@ -12,6 +12,9 @@
 
 ## [Compare with other libraries](https://github.com/HemingwayLee/ai-overview/blob/master/questions/libraries/README.md)
 
+## Showing jupyter notebook on Github
+https://nbviewer.jupyter.org/  
+
 ## Ref  
 https://www.tensorflow.org/guide/tensor?hl=en  
 
