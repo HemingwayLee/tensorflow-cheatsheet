@@ -3,6 +3,7 @@
 
 ## What are Tensors
 * Tensors are higher dimensional arrays with a uniform type (called a `dtype`)
+  * `tf.constant`, `tf.Placeholder` and `tf.Variable` are all Tensors
 * Differences with numpy array
   * It stands apart from numpy array as it offers other methods
   * It can be converted into numpy array (v1 and v2 use different functions to convert)
