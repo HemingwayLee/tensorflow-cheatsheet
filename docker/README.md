@@ -8,12 +8,12 @@
 * pull and run
 ```
 docker pull jupyter/tensorflow-notebook@sha256:960351dcb9da1d5b57f5d57c32a8295a3231a28248b71491aba4f79a01e36ddd
-docker run -p 8888:8888 jupyter/tensorflow-notebook
+docker run -p 8899:8888 jupyter/tensorflow-notebook
 ```
 
 * run with mounted volume
 ```
-docker run -it --rm -p 8888:8888 -v $(pwd):/home/jovyan/work jupyter/tensorflow-notebook
+docker run -it --rm -p 8899:8888 -v $(pwd):/home/jovyan/work jupyter/tensorflow-notebook
 ```
 
 # Ref
