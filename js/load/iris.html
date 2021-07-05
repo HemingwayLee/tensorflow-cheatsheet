@@ -1,0 +1,29 @@
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+
+<div>
+  <h1 id="p">Try Tensorflow</h1>
+  <p>model.json</p><input type="file" id="upload-json" />
+  <p>weight.bin</p><input type="file" id="upload-weights" />
+  <button type="button" id="myBtn" onclick="loadModel(showPrediction);">Try it</button>
+  <div id="res"></div>
+  <script>
+    async function loadModel(callback) {
+      const uploadJSONInput = document.getElementById('upload-json');
+      const uploadWeightsInput = document.getElementById('upload-weights');
+
+      const model = await tf.loadLayersModel(tf.io.browserFiles(
+        [uploadJSONInput.files[0], uploadWeightsInput.files[0]]
+      ));
+      
+      callback(model.predict(tf.tensor2d([[-0.17367395, -1.28296331, 0.70592084, 1.05393502]], [1, 4])));
+    }
+
+    function showPrediction(res) {
+      document.querySelector('#res').innerHTML = res;
+    }
+    // document.querySelector('#myBtn').addEventListener('click', loadModel);
+  </script>
+</div>
+
+
+
