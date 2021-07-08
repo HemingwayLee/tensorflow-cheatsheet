@@ -2,18 +2,13 @@
 
 <div>
   <h1 id="p">Try Tensorflow</h1>
-  <p>json file</p><input type="file" id="upload-json" />
-  <p>bin file</p><input type="file" id="upload-weights" />
+  <!-- <p>json file</p><input type="file" id="upload-json" />
+  <p>bin file</p><input type="file" id="upload-weights" /> -->
   <button type="button" id="myBtn" onclick="loadModel(showPrediction);">Try it</button>
   <div id="res"></div>
   <script>
     async function loadModel(callback) {
-      const uploadJSONInput = document.getElementById('upload-json');
-      const uploadWeightsInput = document.getElementById('upload-weights');
-
-      const model = await tf.loadLayersModel(tf.io.browserFiles(
-        [uploadJSONInput.files[0], uploadWeightsInput.files[0]]
-      ));
+      const model = await tf.loadLayersModel('http://127.0.0.1:3000/iris.json');
       
       callback(model.predict(tf.tensor2d([[-0.17367395, -1.28296331, 0.70592084, 1.05393502]], [1, 4])));
     }
