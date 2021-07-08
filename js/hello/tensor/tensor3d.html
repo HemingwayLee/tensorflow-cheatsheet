@@ -1,0 +1,21 @@
+
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+  </head>
+  <body>
+    <div>Open console to see the result</div>
+    <script>
+      const t3d = tf.tensor3d([[[1], [1], [1]], [[2], [2], [2]]]);
+      t3d.print();
+      console.log(t3d.shape);
+
+      const reshaped = t3d.reshape([3,2,1]);
+      reshaped.print();
+      console.log(reshaped.shape);
+    </script>
+  </body>
+</html>
+
+
+

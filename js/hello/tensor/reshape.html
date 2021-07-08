@@ -1,0 +1,40 @@
+
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+  </head>
+  <body>
+    <div>Open console to see the result</div>
+    <script>
+      async function doIt() {
+        const ori = tf.tensor2d([[1, 2, 3], [4, 5, 6]]);
+        const shape0 = ori.shape[0];
+        const shape1 = ori.shape[1];
+        console.log(`ori tensor, shape0: ${shape0}, shape1: ${shape1}`);
+        
+        console.log("----ori.tensor2d before----");
+        ori.print();
+        console.log("----ori.tensor2d before----");
+
+        const reshaped = ori.reshape([3,2]);
+        const trans = ori.transpose();
+        console.log("----ori.tensor2d after----");
+        ori.print();
+        console.log("----ori.tensor2d after----");
+
+        console.log("----reshaped.tensor2d after----");
+        reshaped.print();
+        console.log("----reshaped.tensor2d after----");
+
+        console.log("----trans.tensor after----");
+        trans.print();
+        console.log("----trans.tensor after----");
+      }
+
+      doIt();
+    </script>
+  </body>
+</html>
+
+
+

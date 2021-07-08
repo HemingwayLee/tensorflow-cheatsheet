@@ -1,0 +1,60 @@
+
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+  </head>
+  <body>
+    <div>Open console to see the result</div>
+    <script>
+      async function doIt() {
+        const ori = tf.tensor2d([[1, 2, 3], [4, 5, 6]]);
+        const shape0 = ori.shape[0];
+        const shape1 = ori.shape[1];
+        console.log(`ori tensor, shape0: ${shape0}, shape1: ${shape1}`);
+        
+        const cloned = ori.clone();
+        // slice([begin], [size])
+        const slice = await ori.slice([0,0], [2,3]);
+        const resized = await ori.reshape([2,3]);
+        const trans = await ori.transpose().transpose();
+
+        const buffer = await tf.buffer(ori.shape, ori.dtype, ori.dataSync());
+        for (var i=0; i<shape0; ++i) {
+          for (var j=0; j<shape1; ++j) {
+            buffer.set(i*10+j, i, j);
+          }
+        }
+        
+        console.log("----ori.buffer----");
+        const final = buffer.toTensor();
+        final.print();
+        console.log("----ori.buffer----");
+
+        console.log("----ori.tensor2d----");
+        ori.print();
+        console.log("----ori.tensor2d----");
+
+        console.log("----cloned.tensor----");
+        cloned.print();
+        console.log("----cloned.tensor----");
+
+        console.log("----slice.tensor----");
+        slice.print();
+        console.log("----slice.tensor----");
+
+        console.log("----resized.tensor----");
+        resized.print();
+        console.log("----resized.tensor----");
+
+        console.log("----trans.tensor----");
+        trans.print();
+        console.log("----trans.tensor----");
+      }
+
+      doIt();
+    </script>
+  </body>
+</html>
+
+
+

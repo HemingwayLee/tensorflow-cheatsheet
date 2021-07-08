@@ -1,0 +1,39 @@
+
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+  </head>
+  <body>
+    <div>Open console to see the result</div>
+    <script>
+      const ori = tf.tensor2d([[1, 2, 3], [4, 5, 6]]);
+      const shape0 = ori.shape[0];
+      const shape1 = ori.shape[1];
+      console.log(`ori tensor, shape0: ${shape0}, shape1: ${shape1}`);
+
+      const buffer = tf.buffer(ori.shape, ori.dtype, ori.dataSync());
+      console.log("----ori.buffer.obj----")
+      console.log(buffer);
+      console.log("----ori.buffer.obj----")
+
+      console.log("----ori.buffer before----")
+      const tmp = buffer.toTensor();
+      tmp.print();
+      console.log("----ori.buffer before----")
+      
+      for (var i=0; i<shape0; ++i) {
+        for (var j=0; j<shape1; ++j) {
+          buffer.set(i*10+j, i, j);
+        }
+      }
+      
+      console.log("----ori.buffer after----")
+      const final = buffer.toTensor();
+      final.print();
+      console.log("----ori.buffer after----")
+    </script>
+  </body>
+</html>
+
+
+

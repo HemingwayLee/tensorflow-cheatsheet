@@ -1,0 +1,20 @@
+
+<html>
+  <head>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+  </head>
+  <body>
+    <div>Open console to see the result</div>
+    <script>
+      const a = tf.tensor1d([1, 2, 3, 4]);
+      const buffer = tf.buffer(a.shape, a.dtype, a.dataSync());
+      buffer.set(5, 0);
+      
+      const b = buffer.toTensor();
+      b.print();
+    </script>
+  </body>
+</html>
+
+
+
