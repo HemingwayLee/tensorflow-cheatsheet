@@ -1,0 +1,75 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+<style>
+  .log {
+    font-size: 24px;
+  }
+</style>
+<div>
+  <h1>Load Image Data</h1>
+  <div id="imgs">
+    <canvas id="imgdata" width="20" height="20" style="border:1px solid #000000;"></canvas>
+    <canvas id="imgtmp" width="20" height="20" style="border:1px solid #000000;"></canvas>
+  </div>
+  <input id="inputdata" type="file" id="upload-png"/>
+  <div id="logs">
+  </div>
+  <script>
+    var cvs = $('#imgdata').get(0);
+    var ctx = cvs.getContext('2d');
+    const numOfChannels = 3;
+
+    document.getElementById('inputdata').addEventListener('change', handleImageFiles);
+
+    function isPrimitive(test) {
+      return (test !== Object(test));
+    }
+
+    function add2logs(msg) {
+      if (!isPrimitive(msg)) {
+        msg = JSON.stringify(msg);
+      }
+      
+      $("#logs").append($("<div class='log'>").html(msg));
+    }
+
+    async function readFromCanvas() {
+      var image = ctx.getImageData(0, 0, cvs.width, cvs.height);
+      var x = tf.browser.fromPixels(image, numOfChannels);
+      x.print()
+      add2logs("---ori shape---");
+      add2logs(x.shape);
+      add2logs(x.dtype);
+      
+      const h = x.shape[0];
+      const w = x.shape[1];
+      add2logs(`width: ${w}, height: ${h}`);
+
+      x = tf.image.resizeNearestNeighbor(x, [parseInt(h/2), parseInt(w/2)]);
+      add2logs("---resized shape---");
+      add2logs(x.shape);
+      add2logs(x.dtype);
+
+      tf.browser.toPixels(x, document.getElementById("imgtmp"));
+    }
+
+    function handleImageFiles(e) {  
+      var url = URL.createObjectURL(e.target.files[0]);
+      var img = new Image();
+
+      img.onload = function() {
+        cvs.width = img.width;
+        cvs.height = img.height;
+        ctx.drawImage(img, 0, 0);  
+        
+        readFromCanvas();
+      }
+      img.src = url;
+    }
+  </script>
+</div>
+
+
+
