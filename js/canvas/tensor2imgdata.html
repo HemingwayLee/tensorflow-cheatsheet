@@ -11,16 +11,14 @@
   <h1>Load Image Data</h1>
   <div id="imgs">
     <canvas id="imgdata" width="20" height="20" style="border:1px solid #000000;"></canvas>
-    <canvas id="imgtmp" width="200" height="200" style="border:1px solid #000000;"></canvas>
+    <canvas id="imgtmp" width="20" height="20" style="border:1px solid #000000;"></canvas>
   </div>
   <input id="inputdata" type="file" id="upload-png"/>
   <div id="logs">
   </div>
   <script>
-    var cvsOri = $('#imgdata').get(0);
-    var ctxOri = cvsOri.getContext('2d');
-    var cvsTar = $('#imgtmp').get(0);
-    var ctxTar = cvsTar.getContext('2d');
+    var cvs = $('#imgdata').get(0);
+    var ctx = cvs.getContext('2d');
     const numOfChannels = 3;
 
     document.getElementById('inputdata').addEventListener('change', handleImageFiles);
@@ -38,32 +36,38 @@
     }
 
     async function readFromCanvas() {
-      var imgData = ctxOri.getImageData(0, 0, cvsOri.width, cvsOri.height);
-      // var x = tf.browser.fromPixels(image, numOfChannels);
+      var image = ctx.getImageData(0, 0, cvs.width, cvs.height);
+      var x = tf.browser.fromPixels(image, numOfChannels);
       // x.print()
-      // add2logs("---ori shape---");
-      // add2logs(x.shape);
-      // add2logs(x.dtype);
+      add2logs("---ori shape---");
+      add2logs(x.shape);
+      add2logs(x.dtype);
       
-      // const h = x.shape[0];
-      // const w = x.shape[1];
-      // add2logs(`width: ${w}, height: ${h}`);
+      const h = x.shape[0];
+      const w = x.shape[1];
+      add2logs(`width: ${w}, height: ${h}`);
 
-      // x = tf.image.resizeNearestNeighbor(x, [parseInt(h/2), parseInt(w/2)]);
-      // add2logs("---resized shape---");
-      // add2logs(x.shape);
-      // add2logs(x.dtype);
-      
-      // method 1
-      ctxTar.putImageData(imgData, 100, 50, 0, 0, cvsOri.width, cvsOri.height);
-    
-      // method 2
-      var canvas = document.createElement('canvas');
-      canvas.width = cvsOri.width;
-      canvas.height = cvsOri.height;
-      var context = canvas.getContext('2d');
-      context.putImageData(imgData, 100, 50);
-      document.getElementById("imgs").appendChild(canvas);
+      x = tf.image.resizeNearestNeighbor(x, [parseInt(h/2), parseInt(w/2)]);
+      add2logs("---resized shape---");
+      add2logs(x.shape);
+      add2logs(x.dtype);
+
+      const alpha = tf.fill([x.shape[0], x.shape[1], 1], 255, 'int32');
+      const rgba = tf.concat([x, alpha], 2);
+
+      add2logs(rgba.shape);
+      add2logs(rgba.dtype);
+
+      const bytes = await rgba.data();
+      const pixelData = new Uint8ClampedArray(bytes);
+      const canvas = document.getElementById("imgtmp");
+      canvas.width = x.shape[1];
+      canvas.height = x.shape[0];
+      if (canvas !== null) {
+        const imageData = new ImageData(pixelData, x.shape[1], x.shape[0]);
+        const ctx = canvas.getContext('2d');
+        ctx.putImageData(imageData, 0, 0);
+      }
     }
 
     function handleImageFiles(e) {  
@@ -71,9 +75,9 @@
       var img = new Image();
 
       img.onload = function() {
-        cvsOri.width = img.width;
-        cvsOri.height = img.height;
-        ctxOri.drawImage(img, 0, 0);  
+        cvs.width = img.width;
+        cvs.height = img.height;
+        ctx.drawImage(img, 0, 0);  
         
         readFromCanvas();
       }
