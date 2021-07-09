@@ -37,7 +37,7 @@
     }
 
     async function loadModel(callback) {
-      var image = ctx.getImageData(0, 0, cvs.height, cvs.width);
+      var image = ctx.getImageData(0, 0, cvs.width, cvs.height);
       var x = tf.browser.fromPixels(image, numOfChannels);
       x.print()
       add2logs(x.shape);

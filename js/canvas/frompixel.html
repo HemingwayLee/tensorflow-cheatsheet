@@ -9,7 +9,10 @@
 </style>
 <div>
   <h1>Load Image Data</h1>
-  <canvas id="imgdata" width="20" height="20" style="border:1px solid #000000;"></canvas>
+  <div id="imgs">
+    <canvas id="imgdata" width="20" height="20" style="border:1px solid #000000;"></canvas>
+    <canvas id="imgtmp" width="20" height="20" style="border:1px solid #000000;"></canvas>
+  </div>
   <input id="inputdata" type="file" id="upload-png"/>
   <div id="logs">
   </div>
@@ -33,15 +36,25 @@
     }
 
     async function readFromCanvas() {
-      var image = ctx.getImageData(0, 0, cvs.height, cvs.width);
+      var image = ctx.getImageData(0, 0, cvs.width, cvs.height);
       var x = tf.browser.fromPixels(image, numOfChannels);
       x.print()
+      add2logs("---ori shape---");
       add2logs(x.shape);
       add2logs(x.dtype);
 
-      x = tf.cast(x, dtype='float32').div(tf.scalar(255));
-      add2logs(x.dtype);
-      add2logs(x.expandDims(0).shape);
+      add2logs("---trans shape (swap 0 and 1)---");
+      add2logs(x.transpose([1,0,2]).shape);
+
+      // both ok
+      tf.browser.toPixels(x, document.getElementById("imgtmp"));
+
+      // both ok
+      const canvas = document.createElement('canvas');
+      canvas.width = x.shape.width;
+      canvas.height = x.shape.height;
+      tf.browser.toPixels(x, canvas);
+      document.getElementById("imgs").appendChild(canvas);
     }
 
     function handleImageFiles(e) {  
