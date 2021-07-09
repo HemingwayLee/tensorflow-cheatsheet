@@ -8,19 +8,15 @@
   }
 </style>
 <div>
-  <h1>Load Data</h1>
-  <canvas id="imgdata" width="28" height="20" style="border:1px solid #000000;"></canvas>
-  <p>mnist.png</p><input id="inputdata" type="file" id="upload-png"/>
-  <hr>
-  <h1>Load model</h1>
-  <p>json file</p><input type="file" id="upload-json" />
-  <p>bin file</p><input type="file" id="upload-weights" />
-  <button type="button" id="myBtn" onclick="loadModel(showPrediction);">Predict</button>
-  <div id="logs"></div>
+  <h1>Load Image Data</h1>
+  <canvas id="imgdata" width="20" height="20" style="border:1px solid #000000;"></canvas>
+  <input id="inputdata" type="file" id="upload-png"/>
+  <div id="logs">
+  </div>
   <script>
     var cvs = $('#imgdata').get(0);
     var ctx = cvs.getContext('2d');
-    const numOfChannels = 1;
+    const numOfChannels = 3;
 
     document.getElementById('inputdata').addEventListener('change', handleImageFiles);
 
@@ -36,7 +32,7 @@
       $("#logs").append($("<div class='log'>").html(msg));
     }
 
-    async function loadModel(callback) {
+    async function readFromCanvas() {
       var image = ctx.getImageData(0, 0, cvs.height, cvs.width);
       var x = tf.browser.fromPixels(image, numOfChannels);
       x.print()
@@ -45,30 +41,7 @@
 
       x = tf.cast(x, dtype='float32').div(tf.scalar(255));
       add2logs(x.dtype);
-      add2logs(x.reshape([28, 28]).shape);
       add2logs(x.expandDims(0).shape);
-      
-      const uploadJSONInput = document.getElementById('upload-json');
-      const uploadWeightsInput = document.getElementById('upload-weights');
-
-      const model = await tf.loadLayersModel(tf.io.browserFiles(
-        [uploadJSONInput.files[0], uploadWeightsInput.files[0]]
-      ));
-      
-      callback(model.predict(x.expandDims(0)));
-    }
-
-    function showPrediction(res) {
-      const arrData = res.arraySync()[0];
-      add2logs(arrData);
-
-      add2logs(res.toString());
-      add2logs(arrData.map(x => (parseInt(x*1000.0)/1000.0).toFixed(3)));
-
-      const max = Math.max.apply(null, arrData);;
-      const maxIndex = arrData.indexOf(max);
-      
-      add2logs(maxIndex);
     }
 
     function handleImageFiles(e) {  
@@ -78,7 +51,9 @@
       img.onload = function() {
         cvs.width = img.width;
         cvs.height = img.height;
-        ctx.drawImage(img, 0, 0);    
+        ctx.drawImage(img, 0, 0);  
+        
+        readFromCanvas();
       }
       img.src = url;
     }
