@@ -1,0 +1,51 @@
+
+<html>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+    <style>
+      .log {
+        font-size: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="logs"></div>
+    <script>
+      function isPrimitive(test) {
+        return (test !== Object(test));
+      }
+
+      function add2logs(msg) {
+        if (!isPrimitive(msg)) {
+          msg = JSON.stringify(msg);
+        }
+        
+        $("#logs").append($("<div class='log'>").html(msg));
+      }
+
+      async function doIt() {
+        var z = tf.zeros([2, 4]);
+        add2logs(z.shape);
+        add2logs(z.dtype);
+        add2logs(z.toString());
+
+        var o = tf.ones([1, 4]);
+        add2logs(o.shape);
+        add2logs(o.dtype);
+        add2logs(o.toString());
+        
+        // can not be done
+        z[0] = o;
+        add2logs(z.toString());
+      }
+
+      doIt();
+    </script>
+  </body>
+</html>
+
+
+
