@@ -1,0 +1,141 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+<style>
+  .log {
+    font-size: 24px;
+  }
+</style>
+<div>
+  <h1>Load Data</h1>
+  <canvas id="imgdata" width="28" height="20" style="border:1px solid #000000;"></canvas>
+  <p>mnist.png</p><input id="inputdata" type="file" id="upload-png"/>
+  <hr>
+  <h1>Load model</h1>
+  <p>json file</p><input type="file" id="upload-json" />
+  <p>bin file</p><input type="file" id="upload-weights" />
+  <button type="button" id="myBtn" onclick="loadModel(showPrediction);">Predict</button>
+  <hr>
+  <p>load tensor json</p><input id="inputjson" type="file" id="upload-tensor"/>
+  <hr>
+  <div id="logs"></div>
+  <script>
+    var cvs = $('#imgdata').get(0);
+    var ctx = cvs.getContext('2d');
+    const numOfChannels = 1;
+
+    document.getElementById('inputdata').addEventListener('change', handleImageFiles);
+    document.getElementById('inputjson').addEventListener('change', handleJsonFiles);
+
+    function isPrimitive(test) {
+      return (test !== Object(test));
+    }
+
+    function add2logs(msg) {
+      if (!isPrimitive(msg)) {
+        msg = JSON.stringify(msg);
+      }
+      
+      $("#logs").append($("<div class='log'>").html(msg));
+    }
+
+    function saveText(text, filename) {
+      var a = document.createElement('a');
+      a.setAttribute('href', 'data:text/plain;charset=utf-u,' + encodeURIComponent(text));
+      a.setAttribute('download', filename);
+      a.click();
+    }
+
+    async function loadModel(callback) {
+      var image = ctx.getImageData(0, 0, cvs.width, cvs.height);
+      var x = tf.browser.fromPixels(image, numOfChannels);
+      x.print()
+      add2logs(x.shape);
+      add2logs(x.dtype);
+
+      x = tf.cast(x, dtype='float32').div(tf.scalar(255));
+      add2logs(x.dtype);
+      add2logs(x.reshape([28, 28]).shape);
+      add2logs(x.expandDims(0).shape);
+      
+      const uploadJSONInput = document.getElementById('upload-json');
+      const uploadWeightsInput = document.getElementById('upload-weights');
+
+      const model = await tf.loadLayersModel(tf.io.browserFiles(
+        [uploadJSONInput.files[0], uploadWeightsInput.files[0]]
+      ));
+      
+      x = x.expandDims(0);
+
+      const arr = x.arraySync();
+      saveText(JSON.stringify(arr, null, 2), "mnist.json");
+
+      callback(model.predict(x));
+    }
+
+    function showPrediction(res) {
+      const arrData = res.arraySync()[0];
+      add2logs(arrData);
+
+      add2logs(res.toString());
+      add2logs(arrData.map(x => (parseInt(x*1000.0)/1000.0).toFixed(3)));
+
+      const max = Math.max.apply(null, arrData);;
+      const maxIndex = arrData.indexOf(max);
+      
+      add2logs(maxIndex);
+    }
+
+    function handleImageFiles(e) {  
+      var url = URL.createObjectURL(e.target.files[0]);
+      var img = new Image();
+
+      img.onload = function() {
+        cvs.width = img.width;
+        cvs.height = img.height;
+        ctx.drawImage(img, 0, 0);    
+      }
+      img.src = url;
+    }
+
+    async function handleData(data, callback) {
+      const arr = JSON.parse(data);
+      console.log(arr);
+      
+      const x = tf.tensor(arr);
+      x.print();
+      add2logs(x.toString());
+      add2logs(x.shape);
+      add2logs(x.dtype);
+      
+      const uploadJSONInput = document.getElementById('upload-json');
+      const uploadWeightsInput = document.getElementById('upload-weights');
+
+      const model = await tf.loadLayersModel(tf.io.browserFiles(
+        [uploadJSONInput.files[0], uploadWeightsInput.files[0]]
+      ));
+
+      callback(model.predict(x));
+    }
+
+    async function ReadFile(file) {
+      return await file.text()
+    }
+
+    function handleJsonFiles(e) {  
+      const selectedFile = e.target.files[0];
+      const promise = new Promise(resolve => {
+        const fileContent = ReadFile(selectedFile);
+        resolve(fileContent);
+      });
+
+      promise.then(fileContent => {
+        handleData(fileContent, showPrediction);
+      });
+    }
+  </script>
+</div>
+
+
+
