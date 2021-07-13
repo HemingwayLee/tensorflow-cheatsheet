@@ -36,7 +36,7 @@
       async function doIt() {
         var z = tf.zeros([2, 4], dtype='float32');
         const arr = z.arraySync();
-        saveText(JSON.stringify(arr), "filename.json");
+        saveText(JSON.stringify(arr, null, 2), "filename.json");
       }
 
       doIt();
