@@ -10,14 +10,14 @@
 <div>
   <h1>Load Data</h1>
   <canvas id="imgdata" width="28" height="20" style="border:1px solid #000000;"></canvas>
-  <p>mnist.png</p><input id="inputdata" type="file" id="upload-png"/>
+  <p>mnist.png</p><input type="file" id="upload-png"/>
   <hr>
   <h1>Load model</h1>
   <p>json file</p><input type="file" id="upload-json" />
   <p>bin file</p><input type="file" id="upload-weights" />
   <button type="button" id="myBtn" onclick="loadModel(showPrediction);">Predict</button>
   <hr>
-  <p>load tensor json</p><input id="inputjson" type="file" id="upload-tensor"/>
+  <p>load tensor json</p><input type="file" id="upload-tensor"/>
   <hr>
   <div id="logs"></div>
   <script>
@@ -25,8 +25,8 @@
     var ctx = cvs.getContext('2d');
     const numOfChannels = 1;
 
-    document.getElementById('inputdata').addEventListener('change', handleImageFiles);
-    document.getElementById('inputjson').addEventListener('change', handleJsonFiles);
+    document.getElementById('upload-png').addEventListener('change', handleImageFiles);
+    document.getElementById('upload-tensor').addEventListener('change', handleJsonFiles);
 
     function isPrimitive(test) {
       return (test !== Object(test));
