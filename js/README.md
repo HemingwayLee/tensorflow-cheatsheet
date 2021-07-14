@@ -19,5 +19,6 @@
 # Details
 * use `--weight_shard_size_bytes` to get a single weights file in `tensorflowjs_converter`
 
-
+# Note
+* It might give you different result, [note](https://stackoverflow.com/questions/52683723/different-results-for-tensorflowjs-and-keras-on-same-model-and-tensor)
 

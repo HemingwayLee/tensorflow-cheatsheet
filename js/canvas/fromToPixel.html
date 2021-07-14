@@ -1,0 +1,114 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+<style>
+  .log {
+    font-size: 24px;
+  }
+</style>
+<div>
+  <h1>Load Image Data</h1>
+  <div id="imgs">
+    <canvas id="imgdata" width="20" height="20" style="border:1px solid #000000;"></canvas>
+    <canvas id="imgtmp" width="20" height="20" style="border:1px solid #000000;"></canvas>
+  </div>
+  <input id="inputdata" type="file" id="upload-png"/>
+  <div id="logs">
+  </div>
+  <script>
+    var cvs = $('#imgdata').get(0);
+    var ctx = cvs.getContext('2d');
+    const numOfChannels = 3;
+
+    document.getElementById('inputdata').addEventListener('change', handleImageFiles);
+
+    function isPrimitive(test) {
+      return (test !== Object(test));
+    }
+
+    function add2logs(msg) {
+      if (!isPrimitive(msg)) {
+        msg = JSON.stringify(msg);
+      }
+      
+      $("#logs").append($("<div class='log'>").html(msg));
+    }
+
+    function isSameTensor(a, b) {
+      try {
+        // add2logs(a.shape);
+        // add2logs(b.shape);
+        if (a.shape.toString() != b.shape.toString()) {
+          return "false";
+        }
+
+        const c = a.equal(b).sum().dataSync()[0];
+        if (c === a.shape.reduce((a,b) => a *= b)) {
+          return "true";
+        } else {
+          return "false";
+        }
+      } catch(err) {
+        return "false";
+      }
+    }
+
+    async function readFromCanvas() {
+      var image = ctx.getImageData(0, 0, cvs.width, cvs.height);
+      var x = tf.browser.fromPixels(image, numOfChannels);
+      add2logs("---ori shape---");
+      add2logs(x.shape);
+      add2logs(x.dtype);
+      
+      const h = x.shape[0];
+      const w = x.shape[1];
+      add2logs(`width: ${w}, height: ${h}`);
+
+      const alpha = tf.fill([x.shape[0], x.shape[1], 1], 255, 'int32');
+      const rgba = tf.concat([x, alpha], 2);
+      add2logs("---tmp shape---");
+      add2logs(rgba.shape);
+      add2logs(rgba.dtype);
+
+      const bytes = await rgba.data();
+      const pixelData = new Uint8ClampedArray(bytes);
+      const canvas = document.getElementById("imgtmp");
+      canvas.width = x.shape[1];
+      canvas.height = x.shape[0];
+      if (canvas !== null) {
+        const imageData = new ImageData(pixelData, x.shape[1], x.shape[0]);
+        const ctx = canvas.getContext('2d');
+        // ctx.putImageData(imageData, 0, 0);
+        ctx.putImageData(imageData, 0, 0);
+
+        // 
+        var image = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var y = tf.browser.fromPixels(image, numOfChannels);
+        add2logs("---new shape---");
+        add2logs(y.shape);
+        add2logs(y.dtype);
+
+        add2logs("--- same? ---");
+        add2logs(isSameTensor(x, y));
+      }
+    }
+
+    function handleImageFiles(e) {  
+      var url = URL.createObjectURL(e.target.files[0]);
+      var img = new Image();
+
+      img.onload = function() {
+        cvs.width = img.width;
+        cvs.height = img.height;
+        ctx.drawImage(img, 0, 0);  
+        
+        readFromCanvas();
+      }
+      img.src = url;
+    }
+  </script>
+</div>
+
+
+

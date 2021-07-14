@@ -1,0 +1,83 @@
+
+<html>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+    <style>
+      .log {
+        font-size: 24px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="logs"></div>
+    <script>
+      function isPrimitive(test) {
+        return (test !== Object(test));
+      }
+
+      function add2logs(msg) {
+        if (!isPrimitive(msg)) {
+          msg = JSON.stringify(msg);
+        }
+        
+        $("#logs").append($("<div class='log'>").html(msg));
+      }
+
+      function isSameTensor(a, b) {
+        try {
+          add2logs(a.shape);
+          add2logs(b.shape);
+          if (a.shape.toString() != b.shape.toString()) {
+            return "false";
+          }
+
+          const c = a.equal(b).sum().dataSync()[0];
+          if (c === a.shape.reduce((a,b) => a *= b)) {
+            return "true";
+          } else {
+            return "false";
+          }
+        } catch(err) {
+          return "false";
+        }
+      }
+
+      async function doIt() {
+        const t1 = tf.tensor([[10, 20]]);
+        var t2 = tf.tensor([10, 20]);
+        t2 = t2.expandDims(0);
+        
+        add2logs("t1 vs t2");
+        add2logs(isSameTensor(t1, t2));
+
+        const r1 = tf.tensor([2, 1]);
+        const r2 = tf.tensor([1, 2]);
+        add2logs("r1 vs r2");
+        add2logs(isSameTensor(r1, r2));
+        
+        const l1 = tf.tensor([2, 1, 2]);
+        const l2 = tf.tensor([2, 1, 2, 1]);
+        add2logs("l1 vs l2");
+        add2logs(isSameTensor(l1, l2));
+
+        const s1 = tf.tensor([[2, 1, 2]]);
+        const s2 = tf.tensor([2, 1, 2]);
+        add2logs("s1 vs s2");
+        add2logs(isSameTensor(s1, s2));
+
+        const r3 = tf.tensor([2, 1, 2]);
+        const r4 = tf.tensor([1, 2, 1]);
+        add2logs("r3 vs r4");
+        add2logs(isSameTensor(r3, r4));
+      }
+
+      doIt();
+    </script>
+  </body>
+</html>
+
+
+
