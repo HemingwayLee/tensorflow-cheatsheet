@@ -1,0 +1,109 @@
+
+<html>
+  <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+    <!-- Load d3.js -->
+    <script src="https://d3js.org/d3.v4.js"></script>
+  </head>
+  <body>
+    <div id="dataviz"></div>
+    <div id="logs"></div>
+    <script>
+      function isPrimitive(test) {
+        return (test !== Object(test));
+      }
+
+      function add2logs(msg) {
+        if (!isPrimitive(msg)) {
+          msg = JSON.stringify(msg);
+        }
+        
+        $("#logs").append($("<div class='log'>").html(msg));
+      }
+
+      async function doIt(callback) {
+        const model = tf.sequential();
+        model.add(
+          tf.layers.dense({units: 1, inputShape: [1], activation: 'relu'}),
+          tf.layers.dense({units: 2, activation: 'softmax'}),
+        );
+
+        model.compile({
+          loss: 'meanSquaredError', 
+          optimizer: 'sgd',
+          metrics: ['accuracy']
+        });
+
+        const xs = tf.tensor([1, 8, 9, 2, 9, 2, 7, 3, 1, 2, 8]);
+        const ys = tf.tensor([1, 2, 2, 1, 2, 1, 2, 1, 1, 1, 2]);
+
+        await model.fit(xs, ys, {
+          epochs: 15,
+        }).then(info => {
+          callback(model.predict(tf.tensor([9])), info);
+        });
+      }
+
+      function drawLineChart(history) {
+        const data = history.loss.map((x, idx) => {
+          return {
+            "idx": idx, 
+            "value": x
+          }
+        });
+
+        var margin = {top: 10, right: 30, bottom: 30, left: 60},
+          width = 460 - margin.left - margin.right,
+          height = 400 - margin.top - margin.bottom;
+
+        var svg = d3.select("#dataviz")
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform",
+                  "translate(" + margin.left + "," + margin.top + ")");
+
+        var x = d3.scaleLinear()
+          .domain([0, 15])
+          .range([0, width]);
+        
+        svg.append("g")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(x));
+
+        var y = d3.scaleLinear()
+          .domain([0, 5])
+          .range([height, 0]);
+        
+        svg.append("g")
+          .call(d3.axisLeft(y));
+
+        svg.append("path")
+          .datum(data)
+          .attr("fill", "none")
+          .attr("stroke", "steelblue")
+          .attr("stroke-width", 1.5)
+          .attr("d", d3.line()
+            .x(function(d) { return x(d.idx) })
+            .y(function(d) { return y(d.value) })
+          );
+      }
+
+      doIt(function(res, info) {
+        // console.log('Final accuracy: ', info.history);
+        // console.log(res);
+        // document.querySelector('#res').innerHTML = res;
+        
+        drawLineChart(info.history);
+        add2logs(res.toString());
+      });
+
+
+    </script>
+  </body>
+</html>
+
