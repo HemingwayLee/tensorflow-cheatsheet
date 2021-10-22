@@ -1,0 +1,222 @@
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script>
+<style>
+  .log {
+    font-size: 24px;
+  }
+  
+  canvas { 
+    border: 1px solid black 
+  }
+
+  td.selectedImg {
+    background-color: lightgreen;
+  }
+</style>
+<div>
+  <h1>Draw Me</h1>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <div id="imgs">
+            <canvas id="drawing" width="300" height="300"></canvas>
+          </div>
+        </td>
+        <td>
+          <select id="categories">
+          </select>
+          <br>
+          <button onclick="cleanCanvas();">Clean</button>
+          <br>
+          <button onclick="finish();">Finish</button>
+          <br>
+          <button onclick="train();">Do Training</button>
+          <br>
+          <button onclick="predict();">Do Prediction</button>
+          <!-- <button id="save">Save</button> -->
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  <div>
+    <h1>Training Data</h1>
+    <h2 id="training_c1"></h2>
+    <table border="1" id="saved_c1">
+      <thead><tr></tr></thead>
+      <tbody><tr></tr></tbody>
+    </table>
+    <h2 id="training_c2"></h2>
+    <table border="1" id="saved_c2">
+      <thead><tr></tr></thead>
+      <tbody><tr></tr></tbody>
+    </table>
+    <hr>
+    <h1>Testing Data</h1>
+    <h2 id="testing_c1"></h2>
+    <table border="1" id="prediction_c1">
+      <thead><tr></tr></thead>
+      <tbody><tr></tr></tbody>
+    </table>
+    <h2 id="testing_c2"></h2>
+    <table border="1" id="prediction_c2">
+      <thead><tr></tr></thead>
+      <tbody><tr></tr></tbody>
+    </table>
+  </div>
+  <div id="logs">
+  </div>
+  <script>
+    const categories = ["flower", "apple", "dog", "bear"];
+    var training_img_c1 = [];
+    var training_img_c2 = [];
+    var canvas, ctx, flag = false,
+      w = 0,
+      h = 0,
+      prevX = 0,
+      currX = 0,
+      prevY = 0,
+      currY = 0,
+      dot_flag = false;
+
+    init();
+    defineCategories();
+
+    function cleanCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function createCanvas(id, w, h, tableId, imgData) {
+      var can = document.createElement('canvas');
+      can.id = `${tableId}-${id}`;
+      can.width = w;
+      can.height = h;
+
+      var ctxNew = can.getContext("2d");
+      ctxNew.putImageData(imgData, 0, 0);
+      
+      var bodyRow = document.querySelectorAll(`#${tableId} > tbody > tr`);
+      var td = document.createElement('td');
+      td.addEventListener('click', function (e){ 
+        const parent = e.currentTarget.parentElement;
+        for (var i=0; i<parent.childNodes.length; ++i) {
+          parent.childNodes[i].classList.remove('selectedImg');
+        }
+
+        e.currentTarget.classList.add('selectedImg');
+      });
+
+      var headRow = document.querySelectorAll(`#${tableId} > thead > tr`);
+      var th = document.createElement('th');
+      th.innerText = id;
+
+      td.appendChild(can);
+      headRow[0].appendChild(th);
+      bodyRow[0].appendChild(td);
+    }
+
+    function finish() {
+      var original = ctx.getImageData(0, 0, w, h);
+      
+      var copiedData = original.data.slice();
+      var copied = new ImageData(copiedData, original.width, original.height);
+      
+      var selected = $('#categories option').filter(':selected').val();
+      if (selected == 1) {
+        training_img_c1.push(copied);
+        createCanvas(training_img_c1.length, w, h, "saved_c1", training_img_c1[training_img_c1.length-1]);
+      } else {
+        training_img_c2.push(copied);
+        createCanvas(training_img_c2.length, w, h, "saved_c2", training_img_c2[training_img_c2.length-1]);
+      }
+
+      cleanCanvas();
+    }
+
+    function defineCategories(n=2) {
+      const randomItems = categories.sort(() => 0.5 - Math.random()).slice(0, n);
+      for (var i=0; i<randomItems.length; ++i) {
+        $("#categories").append(`<option value="${i+1}">${randomItems[i]}</option>`);
+        $(`#training_c${i+1}`).text(randomItems[i]);
+      }
+    }
+
+    function isPrimitive(test) {
+      return (test !== Object(test));
+    }
+
+    function add2logs(msg) {
+      if (!isPrimitive(msg)) {
+        msg = JSON.stringify(msg);
+      }
+      
+      $("#logs").append($("<div class='log'>").html(msg));
+    }
+    
+    function init() {
+      canvas = document.getElementById('drawing');
+      ctx = canvas.getContext("2d");
+      w = canvas.width;
+      h = canvas.height;
+  
+      canvas.addEventListener("mousemove", function (e) {
+        findxy('move', e)
+      }, false);
+      canvas.addEventListener("mousedown", function (e) {
+        findxy('down', e)
+      }, false);
+      canvas.addEventListener("mouseup", function (e) {
+        findxy('up', e)
+      }, false);
+      canvas.addEventListener("mouseout", function (e) {
+        findxy('out', e)
+      }, false);
+    }
+ 
+    function draw() {
+      ctx.beginPath();
+      ctx.moveTo(prevX, prevY);
+      ctx.lineTo(currX, currY);
+      ctx.strokeStyle = "black";
+      ctx.lineWidth = "3";
+      ctx.stroke();
+      ctx.closePath();
+    }
+   
+    function findxy(res, e) {
+      if (res == 'down') {
+        prevX = currX;
+        prevY = currY;
+        currX = e.clientX - canvas.getBoundingClientRect().left;
+        currY = e.clientY - canvas.getBoundingClientRect().top;
+
+        flag = true;
+        dot_flag = true;
+        if (dot_flag) {
+          ctx.beginPath();
+          ctx.fillStyle = "black";
+          ctx.fillRect(currX, currY, 2, 2);
+          ctx.closePath();
+          dot_flag = false;
+        }
+      }
+
+      if (res == 'up' || res == "out") {
+        flag = false;
+      }
+
+      if (res == 'move') {
+        if (flag) {
+          prevX = currX;
+          prevY = currY;
+          currX = e.clientX - canvas.getBoundingClientRect().left;
+          currY = e.clientY - canvas.getBoundingClientRect().top;
+          draw();
+        }
+      }
+    }
+  </script>
+</div>
+
