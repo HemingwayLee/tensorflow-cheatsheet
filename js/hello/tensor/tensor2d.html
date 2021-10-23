@@ -1,18 +1,30 @@
 
 <html>
   <head>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/3.10.0/tf.min.js"></script>
+    
   </head>
   <body>
     <div>Open console to see the result</div>
     <script>
       // There are all the same
-      tf.tensor([[1, 2], [3, 4]]).print();
-      tf.tensor([1, 2, 3, 4], [2, 2]).print();
+      const t1 = tf.tensor([[1, 2], [3, 4]]);
+      const t2 = tf.tensor([1, 2, 3, 4], [2, 2]);
 
       // tensor2d has more readable
-      tf.tensor2d([[1, 2], [3, 4]]).print();
-      tf.tensor2d([1, 2, 3, 4], [2, 2]).print();
+      const t3 = tf.tensor2d([[1, 2], [3, 4]]);
+      const t4 = tf.tensor2d([1, 2, 3, 4], [2, 2]);
+
+      t1.print();
+      t2.print();
+      t3.print();
+      t4.print();
+
+      console.log(t1.shape);
+      console.log(t2.shape);
+      console.log(t3.shape);
+      console.log(t4.shape);
     </script>
   </body>
 </html>
