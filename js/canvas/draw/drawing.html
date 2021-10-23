@@ -69,7 +69,7 @@
   <div id="logs">
   </div>
   <script>
-    const categories = ["flower", "apple", "dog", "bear"];
+    const categories = ["flower", "apple", "star", "bear"];
     var training_img_c1 = [];
     var training_img_c2 = [];
     var canvas, ctx, flag = false,
@@ -83,6 +83,14 @@
 
     init();
     defineCategories();
+
+    function train() {
+      
+    }
+
+    function predict() {
+
+    }
 
     function cleanCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -106,6 +114,9 @@
         }
 
         e.currentTarget.classList.add('selectedImg');
+
+        cleanCanvas();
+        ctx.putImageData(imgData, 0, 0);
       });
 
       var headRow = document.querySelectorAll(`#${tableId} > thead > tr`);
