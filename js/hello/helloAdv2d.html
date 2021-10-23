@@ -4,7 +4,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"> </script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/3.10.0/tf.min.js"></script>
     <!-- Load d3.js -->
     <script src="https://d3js.org/d3.v4.js"></script>
   </head>
@@ -27,8 +28,8 @@
       async function doIt(callback) {
         const model = tf.sequential();
         model.add(
-          tf.layers.dense({units: 1, inputShape: [1], activation: 'relu'}),
-          tf.layers.dense({units: 1, activation: 'sigmod'}),
+          tf.layers.dense({units: 2, inputShape: [1], activation: 'relu'}),
+          tf.layers.dense({units: 2, activation: 'softmax'}),
         );
 
         model.compile({
@@ -38,12 +39,25 @@
         });
 
         const xs = tf.tensor([1, 8, 9, 2, 9, 2, 7, 3, 1, 2, 8]);
-        const ys = tf.tensor([1, 2, 2, 1, 2, 1, 2, 1, 1, 1, 2]);
+        const ys = tf.tensor([
+          [1,0], 
+          [0,1], 
+          [0,1], 
+          [1,0], 
+          [0,1], 
+          [1,0], 
+          [0,1], 
+          [1,0], 
+          [1,0], 
+          [1,0], 
+          [0,1]
+        ]);
 
         await model.fit(xs, ys, {
-          epochs: 15,
+          epochs: 25,
         }).then(info => {
-          callback(model.predict(tf.tensor([9])), info);
+          const res = model.predict(tf.tensor([9]));
+          callback(res, info);
         });
       }
 
@@ -68,7 +82,7 @@
                   "translate(" + margin.left + "," + margin.top + ")");
 
         var x = d3.scaleLinear()
-          .domain([0, 15])
+          .domain([0, 25])
           .range([0, width]);
         
         svg.append("g")
