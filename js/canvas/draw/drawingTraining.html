@@ -3,7 +3,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/3.10.0/tf.min.js"></script>
-
+<script src="https://d3js.org/d3.v4.js"></script>
 <style>
   .log {
     font-size: 24px;
@@ -24,19 +24,20 @@
       <tr>
         <td>
           <div id="imgs">
-            <canvas id="drawing" width="300" height="300"></canvas>
+            <canvas id="drawing" width="150" height="150"></canvas>
           </div>
         </td>
         <td>
+          <label for="categories">Put your drawing into categories</label>
           <select id="categories">
           </select>
           <br>
           <button onclick="cleanCanvas();">Clean</button>
           <br>
           <button onclick="finish();">Finish</button>
-          <br>
-          <button onclick="train();">Do Training</button>
-          <br>
+          <hr>
+          <button onclick="runTraining();">Do Training</button>
+          <hr>
           <button onclick="predict();">Do Prediction</button>
           <!-- <button id="save">Save</button> -->
         </td>
@@ -68,10 +69,17 @@
       <tbody><tr></tr></tbody>
     </table>
   </div>
-  <div id="logs">
-  </div>
+  <div id="dataviz"></div>
+  <div id="logs"></div>
   <script>
-    const categories = ["flower", "apple", "star", "bear"];
+    const categories = ["flower", "apple", "star", "one"];
+    const IMAGE_CHANNELS = 1;  
+    const IMAGE_WIDTH = 150;
+    const IMAGE_HEIGHT = 150;
+    const NUM_OUTPUT_CLASSES = 2; // because it is binary classification
+    const EPOCHS = 75;
+    const RESIZE = 1;
+    const DUPLICATED_TIMES = 38;
     var training_img_c1 = [];
     var training_img_c2 = [];
     var canvas, ctx, flag = false,
@@ -85,6 +93,127 @@
 
     init();
     defineCategories();
+
+    function predict() {
+
+    }
+
+    function getModel() {
+      const model = tf.sequential();
+      
+      model.add(tf.layers.conv2d({
+        inputShape: [IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS],
+        kernelSize: 16,
+        filters: 8,
+        strides: 2,
+        activation: 'relu',
+        kernelInitializer: 'varianceScaling'
+      }));
+      model.add(tf.layers.maxPooling2d({poolSize: [8, 8], strides: [2, 2]}));
+      
+      model.add(tf.layers.conv2d({
+        kernelSize: 8,
+        filters: 16,
+        strides: 1,
+        activation: 'relu',
+        kernelInitializer: 'varianceScaling'
+      }));
+      model.add(tf.layers.maxPooling2d({poolSize: [5, 5], strides: [2, 2]}));
+      
+      model.add(tf.layers.conv2d({
+        kernelSize: 5,
+        filters: 16,
+        strides: 1,
+        activation: 'relu',
+        kernelInitializer: 'varianceScaling'
+      }));
+      model.add(tf.layers.maxPooling2d({poolSize: [2, 2], strides: [2, 2]}));
+
+      model.add(tf.layers.flatten());
+
+      model.add(tf.layers.dense({
+        units: NUM_OUTPUT_CLASSES,
+        kernelInitializer: 'varianceScaling',
+        activation: 'softmax'
+      }));
+
+      const optimizer = tf.train.adam();
+      model.compile({
+        loss: 'meanSquaredError', 
+        // optimizer: 'sgd',
+        optimizer: optimizer,
+        // loss: 'categoricalCrossentropy',
+        metrics: ['accuracy'],
+      });
+
+      return model;
+    }
+
+    async function train(model, xs, ys, cbComplete) {
+      await model.fit(xs, ys, {
+        epochs: EPOCHS,
+        shuffle: true,
+        callbacks: { onEpochEnd: (epoch, logs) => console.log(logs.loss) }
+      }).then(info => {
+        // const res = model.predict(tf.tensor([9]));
+        const res = "finish!!";
+        cbComplete(res, info);
+      });
+    }
+
+    async function runTraining() { 
+      const data = getDataFromImageData(); 
+      const model = getModel();
+
+      console.log(data);
+
+      const xs = tf.tensor(data.x);
+      const ys = tf.tensor(data.y);
+
+      // console.log("??old shape??");
+      // console.log(xs.shape);
+      // console.log("??old shape??");
+
+      // console.log("??new shape??");
+      // console.log(xs.reshape([data.x.length, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS]).shape);
+      // console.log("??new shape??");
+      
+      train(model, xs.reshape([data.x.length, IMAGE_WIDTH, IMAGE_HEIGHT, IMAGE_CHANNELS]), ys, function(res, info) {
+        console.log('Final accuracy: ', info.history);
+        // console.log(res);
+        drawLineChart(info.history);
+        add2logs(res.toString());
+      });
+    }
+
+    function getDataFromRgbaArray(imageData) {
+      const datasetBytes = new Float32Array(imageData.data.length / (4*RESIZE));
+      
+      for (var j = 0; j < imageData.data.length / (4*RESIZE); j++) {
+        datasetBytes[j] = imageData.data[j * (4*RESIZE)] - 128.0 / 255.0;
+      }
+
+      return datasetBytes;
+    }
+
+    function getDataFromImageData() {
+      var data = { "x":[], "y":[] };
+      console.log(`duplicated times: ${DUPLICATED_TIMES}`);
+
+      for (var j=0; j<DUPLICATED_TIMES; ++j) {
+        for (var i=0; i<training_img_c1.length; ++i) {
+          data.x.push(getDataFromRgbaArray(training_img_c1[i]));
+          data.y.push([1,0]);
+        }
+
+        for (var i=0; i<training_img_c2.length; ++i) {
+          data.x.push(getDataFromRgbaArray(training_img_c2[i]));
+          data.y.push([0,1]);
+        }
+      }
+      
+      return data;
+    }
 
     function cleanCanvas() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -185,7 +314,7 @@
       ctx.moveTo(prevX, prevY);
       ctx.lineTo(currX, currY);
       ctx.strokeStyle = "black";
-      ctx.lineWidth = "3";
+      ctx.lineWidth = "6";
       ctx.stroke();
       ctx.closePath();
     }
@@ -221,6 +350,54 @@
           draw();
         }
       }
+    }
+
+    function drawLineChart(history) {
+      const maxLossValue = Math.max(...history.loss);
+
+      const data = history.loss.map((x, idx) => {
+        return {
+          "idx": idx, 
+          "value": x
+        }
+      });
+
+      var margin = {top: 10, right: 30, bottom: 30, left: 60},
+        width = 460 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
+
+      var svg = d3.select("#dataviz")
+        .append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+          .attr("transform",
+                "translate(" + margin.left + "," + margin.top + ")");
+
+      var x = d3.scaleLinear()
+        .domain([0, EPOCHS])
+        .range([0, width]);
+      
+      svg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+      var y = d3.scaleLinear()
+        .domain([0, maxLossValue])
+        .range([height, 0]);
+      
+      svg.append("g")
+        .call(d3.axisLeft(y));
+
+      svg.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "steelblue")
+        .attr("stroke-width", 1.5)
+        .attr("d", d3.line()
+          .x(function(d) { return x(d.idx) })
+          .y(function(d) { return y(d.value) })
+        );
     }
   </script>
 </div>
