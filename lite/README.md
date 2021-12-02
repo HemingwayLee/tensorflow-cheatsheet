@@ -36,6 +36,6 @@
 * Protocol Buffers is similar to FlatBuffers, with the difference being that FlatBuffers does not need a `parsing` / `unpacking` step to a secondary representation before you can access data
 
 ### vs JSON
-![img/flatbuffer.jpeg]
+![flatbuffer](img/flatbuffer.jpeg)
 
 
