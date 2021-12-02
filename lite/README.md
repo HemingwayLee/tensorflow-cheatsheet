@@ -18,4 +18,24 @@
 # Cons
 * Optimizations can `potentially` result in changes in model accuracy
 
+# Architecture
+![arch1](img/arch1.png)
+![arch2](img/arch2.png)
+
+# How to convert
+* The TensorFlow Lite converter takes a TensorFlow model and generates a TensorFlow Lite model (an optimized [FlatBuffer](https://google.github.io/flatbuffers/) format identified by the .tflite file extension)
+  * Python API (recommended)
+  * Command line tool (This only supports basic model conversion)
+![convert](https://www.tensorflow.org/lite/images/convert/convert.png)
+
+## FlatBuffer
+* It is an efficient cross platform serialization library 
+* It was originally created at Google for performance-critical app
+
+## vs Protocol Buffer
+* Protocol Buffers is similar to FlatBuffers, with the difference being that FlatBuffers does not need a `parsing` / `unpacking` step to a secondary representation before you can access data
+
+### vs JSON
+![img/flatbuffer.jpeg]
+
 
