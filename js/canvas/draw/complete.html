@@ -3,7 +3,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <!-- <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs/dist/tf.min.js"></script> -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/3.10.0/tf.min.js"></script>
-<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.3/Chart.min.js"></script>
 <style>
   .log {
     font-size: 24px;
@@ -14,7 +14,7 @@
   }
 
   td.selectedImg {
-    background-color: lightgreen;
+    background-color: #337ab7;
   }
 </style>
   <div class="container">
@@ -30,6 +30,9 @@
               <select id="categories">
               </select>
             </td>
+            <td style="padding: 5px">
+              <h3>Loss over epochs</h3>
+            </td>
           </tr>
           <tr>
             <td style="padding: 5px">
@@ -38,12 +41,12 @@
               </div>
             </td>
             <td style="padding: 5px">
-              <button class="btn btn-primary" onclick="cleanCanvas();">
-                <i class="glyphicon glyphicon-modal-window"></i> Clean
+              <button class="btn btn-primary" onclick="finish();">
+                <i class="glyphicon glyphicon-check"></i> Add to training dataset
               </button>
               <br>
-              <button class="btn btn-primary" onclick="finish();">
-                <i class="glyphicon glyphicon-check"></i> Finish
+              <button class="btn btn-primary" onclick="cleanCanvas();">
+                <i class="glyphicon glyphicon-modal-window"></i> Clean
               </button>
               <br><br>
               <button class="btn btn-danger" id="training" onclick="runTraining();">
@@ -55,9 +58,13 @@
               </button>
               <!-- <button id="save">Save</button> -->
             </td>
+            <td style="padding: 5px">
+              <canvas id="nn_errors" width="480" height="200"></canvas>
+            </td>
           </tr>
         </tbody>
       </table>
+      <hr>
       <div>
         <ul class="nav nav-pills nav-tabs">
           <li class="active"><a data-toggle="tab" href="#tab_c1" id="training_c1"></a></li>
@@ -90,8 +97,6 @@
           <tbody><tr></tr></tbody>
         </table>
       </div>
-      <div id="dataviz"></div>
-      <div id="logs"></div>
     </div>
   </div>
   <script>
@@ -104,6 +109,7 @@
     const RESIZE = 2;
     const BATCH_SIZE = 8;
     const DUPLICATED_TIMES = 4;
+    const MARGIN = 40;
     var MODEL_FOR_PREDICT = 0;
     var CHECK_INPUT_DATA = false;
     var training_img_c1 = [];
@@ -116,6 +122,28 @@
       prevY = 0,
       currY = 0,
       dot_flag = false;
+
+    let chart = new Chart($("#nn_errors"), {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: "Loss",
+          data: [],
+          backgroundColor: '#ADD7F6',
+          borderColor: '#0275D8',
+          borderWidth: 1,
+          fill: false
+        }]
+      },
+      options: {
+        elements: {
+          line: {
+            tension: 0
+          }
+        }
+      }
+    });
 
     init();
     defineCategories();
@@ -177,14 +205,17 @@
       return model;
     }
 
+    function handleEpochEnd(epochs, logs) {
+      updateCharts(epochs, logs.loss);
+    }
+
     async function train(model, xs, ys, cbComplete) {
       await model.fit(xs, ys, {
         batchSize: BATCH_SIZE,
         epochs: EPOCHS,
         shuffle: true,
-        callbacks: { onEpochEnd: (epoch, logs) => console.log(logs.loss) }
+        callbacks: { onEpochEnd: handleEpochEnd }
       }).then(info => {
-        const res = "finish!!";
         cbComplete(res, info);
       });
     }
@@ -212,9 +243,7 @@
       train(model, xs.reshape([data.x.length, IMAGE_WIDTH/RESIZE, IMAGE_HEIGHT/RESIZE, IMAGE_CHANNELS]), ys, function(res, info) {
         console.log('Final accuracy: ', info.history);
         // console.log(res);
-        drawLineChart(info.history);
-        add2logs(res.toString());
-
+        
         MODEL_FOR_PREDICT = model;
         document.getElementById("prediction").disabled = false;
       });
@@ -272,7 +301,7 @@
 
     function getDataFromImageData() {
       var data = { "x":[], "y":[] };
-      console.log(`duplicated times: ${DUPLICATED_TIMES}`);
+      // console.log(`duplicated times: ${DUPLICATED_TIMES}`);
 
       for (var j=0; j<DUPLICATED_TIMES; ++j) {
         for (var i=0; i<training_img_c1.length; ++i) {
@@ -433,52 +462,12 @@
       }
     }
 
-    function drawLineChart(history) {
-      const maxLossValue = Math.max(...history.loss);
-
-      const data = history.loss.map((x, idx) => {
-        return {
-          "idx": idx, 
-          "value": x
-        }
+    function updateCharts(iter, errors) {
+      chart.data.labels.push(iter+1);
+      chart.data.datasets.forEach((dataset) => {
+        dataset.data.push(errors);
       });
-
-      var margin = {top: 10, right: 30, bottom: 30, left: 60},
-        width = 460 - margin.left - margin.right,
-        height = 400 - margin.top - margin.bottom;
-
-      var svg = d3.select("#dataviz")
-        .append("svg")
-          .attr("width", width + margin.left + margin.right)
-          .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-          .attr("transform",
-                "translate(" + margin.left + "," + margin.top + ")");
-
-      var x = d3.scaleLinear()
-        .domain([0, EPOCHS])
-        .range([0, width]);
-      
-      svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
-
-      var y = d3.scaleLinear()
-        .domain([0, maxLossValue])
-        .range([height, 0]);
-      
-      svg.append("g")
-        .call(d3.axisLeft(y));
-
-      svg.append("path")
-        .datum(data)
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
-          .x(function(d) { return x(d.idx) })
-          .y(function(d) { return y(d.value) })
-        );
+      chart.update();
     }
   </script>
 </div>
