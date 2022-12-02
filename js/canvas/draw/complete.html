@@ -151,9 +151,15 @@
       const res = MODEL_FOR_PREDICT.predict(xs.reshape([1, IMAGE_WIDTH/RESIZE, IMAGE_HEIGHT/RESIZE, IMAGE_CHANNELS])).arraySync();
       
       // console.log(res);
-      console.log(`${categories[0]}: ${((res[0][0] * 10000) / 100).toFixed(2)}%`);
-      console.log(`${categories[1]}: ${((res[0][1] * 10000) / 100).toFixed(2)}%`);
+      $("#infResult").empty();
+      $("#infResult").append(`<p>${categories[0]}: ${((res[0][0] * 10000) / 100).toFixed(2)}%</p>`);
+      $("#infResult").append(`<p>${categories[1]}: ${((res[0][1] * 10000) / 100).toFixed(2)}%</p>`);
       
+      const can = document.getElementById('infCanvas');
+      const ctxNew = can.getContext("2d");
+      ctxNew.putImageData(copied, 0, 0);
+      $("#infModal").modal();
+
       cleanCanvas();
     }
 
@@ -214,6 +220,7 @@
     }
 
     async function runTraining() { 
+      document.getElementById("training").disabled = true;
       document.getElementById("prediction").disabled = true;
       document.getElementById("add2").disabled = true;
 
@@ -239,7 +246,6 @@
         
         MODEL_FOR_PREDICT = model;
         document.getElementById("prediction").disabled = false;
-        document.getElementById("training").disabled = true;
       });
     }
 
@@ -458,5 +464,34 @@
       chart.update();
     }
   </script>
+</div>
+
+<div class="modal fade" id="infModal" role="dialog">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 id="infTitle" class="modal-title">Prediction Result</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div id="infBody" class="modal-body">
+        <table>
+          <tbody>
+            <tr>
+              <td style="padding: 5px;">
+                <canvas id="infCanvas" width="160" height="160"></canvas>
+              </td>
+              <td id="infResult" style="padding: 5px;">
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>
 
