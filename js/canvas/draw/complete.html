@@ -15,7 +15,7 @@
 </style>
   <div class="container">
     <div class="jumbotron mt-3">
-      <h1 style="text-align: center; color: #337ab7">OCR showcase with Tensorflow.js</h1>
+      <h2 style="text-align: center; color: #337ab7">Image classification with Tensorflow.js</h2>
       <hr>
       <table>
         <tbody>
@@ -382,10 +382,6 @@
         $("#categories").append(`<option value="${i+1}">${randomItems[i]}</option>`);
         $(`#training_c${i+1}`).text(randomItems[i]);
       }
-    }
-
-    function isPrimitive(test) {
-      return (test !== Object(test));
     }
     
     function init() {
