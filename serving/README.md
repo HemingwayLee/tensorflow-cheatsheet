@@ -41,11 +41,12 @@ tensorflow_model_server --port=8500 --rest_api_port=8501 \
 apt-get install tensorflow-model-server
 ```
 * Download `saved_model_half_plus_two_cpu` folder from [tensorflow/serving](https://github.com/tensorflow/serving)
+* Open port 8500 and 8501 on an AWS EC2
 * Run the following command to start tensorflow serving with tmux
 ```
 tmux new-session -d -s run_tensorflow_serving 'tensorflow_model_server --port=8500 --rest_api_port=8501  --model_name="saved_model_half_plus_two_cpu" --model_base_path="/home/ubuntu/tfs/saved_model_half_plus_two_cpu/"'
 ```
-* Open another terminal tab and run the following command to my AWS EC2
+* Open another terminal tab and run the following command to the AWS EC2
 ```
 curl -d '{"instances": [1.0, 2.0, 5.0]}' -X POST http://<the_ip>:8501/v1/models/saved_model_half_plus_two_cpu:predict
 ```
