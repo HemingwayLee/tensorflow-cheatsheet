@@ -54,6 +54,11 @@ ipython kernel install --user --name=venv
 jupyter notebook
 ```
 
+## Run with docker on GPU machine
+```
+docker run -it --rm --gpus all ...
+```
+
 ## Installation with conda
 ```
 conda install python=3.6
