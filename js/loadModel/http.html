@@ -8,7 +8,7 @@
   <div id="res"></div>
   <script>
     async function loadModel(callback) {
-      const model = await tf.loadLayersModel('http://127.0.0.1:3000/iris.json');
+      const model = await tf.loadLayersModel('http://127.0.0.1:3000/data/iris.json');
       
       callback(model.predict(tf.tensor2d([[-0.17367395, -1.28296331, 0.70592084, 1.05393502]], [1, 4])));
     }
