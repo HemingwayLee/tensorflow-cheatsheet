@@ -54,9 +54,11 @@ ipython kernel install --user --name=venv
 jupyter notebook
 ```
 
-## Run with docker on GPU machine
+## Run with docker on GPU machine 
+We can use `nvidia-smi` to check how many GPUs are there
 ```
 docker run -it --rm --gpus all ...
+docker run -it --rm --gpus device=0 ...
 ```
 
 ## Installation with conda
