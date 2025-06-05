@@ -59,33 +59,6 @@ We can use `nvidia-smi` to check how many GPUs are there
 ```
 docker run -it --rm --gpus all ...
 docker run -it --rm --gpus device=0 ...
-```
-
-## Installation with conda
-```
-conda install python=3.6
-conda install tensorflow
-```
-
-```
-conda activate
-conda deactivate
-```
-
-```
-conda activate my_keras_demo
-```
-
-Create an environment:
-```
-conda create --name myenv
-conda create -n myenv python=3.4
-conda create -n myenv scipy
-conda create -n myenv scipy=0.15.0
-```
-
-Check environment:
-```
-conda env list
+docker run -it --rm --gpus '"device=2,3"' ...
 ```
 
