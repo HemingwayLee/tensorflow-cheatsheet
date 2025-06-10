@@ -68,7 +68,8 @@ docker run -it --rm --gpus '"device=2,3"' ...
 import tensorflow as tf
 physical_devices = tf.config.list_physical_devices('GPU')
 print("Num GPUs Available: ", len(physical_devices))
-
+with tf.device('/GPU:1'):
+    model.fit(...)
 ```
 
 ## When we got `CuDNNLSTM: unknown error failed to find the dnn implementation`
