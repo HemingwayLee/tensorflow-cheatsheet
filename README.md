@@ -63,6 +63,7 @@ docker run -it --rm --gpus '"device=2,3"' ...
 ```
 
 * When we use `--gpus all` options, it does not mean the training code will use all GPUs, it means all GPUs will be available inside docker container.
+  * When we run `nvidia-smi` inside docker container, we will get different number of GPUs (only available ones) outside docker container
 * We can specify the GPUs to run training code
 ```
 import tensorflow as tf
